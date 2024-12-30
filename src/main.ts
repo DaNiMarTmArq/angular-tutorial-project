@@ -7,10 +7,15 @@ import {
   provideProtractorTestingSupport,
 } from "@angular/platform-browser";
 import { AppComponent } from "./app/app.component";
-import { provideRouter } from "@angular/router";
+import { provideRouter, withRouterConfig } from "@angular/router";
 import routeConfig from "./app/routes";
 
 bootstrapApplication(AppComponent, {
-  providers: [provideProtractorTestingSupport(), provideRouter(routeConfig)],
+  providers: [
+    provideProtractorTestingSupport(),
+    provideRouter(
+      routeConfig,
+      withRouterConfig({ scrollPositionRestoration: "enabled" }) // Enable scroll restoration
+    ),
+  ],
 }).catch((err) => console.error(err));
-  
