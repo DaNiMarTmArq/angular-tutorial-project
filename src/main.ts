@@ -7,15 +7,19 @@ import {
   provideProtractorTestingSupport,
 } from "@angular/platform-browser";
 import { AppComponent } from "./app/app.component";
-import { provideRouter, withRouterConfig } from "@angular/router";
+import { InMemoryScrollingFeature, InMemoryScrollingOptions, provideRouter, withInMemoryScrolling } from "@angular/router";
 import routeConfig from "./app/routes";
 
+const scrollConfig: InMemoryScrollingOptions = {
+  scrollPositionRestoration: "top",
+  anchorScrolling: "enabled",
+};
+
+const inMemoryScrollingFeature: InMemoryScrollingFeature =
+  withInMemoryScrolling(scrollConfig);
 bootstrapApplication(AppComponent, {
   providers: [
     provideProtractorTestingSupport(),
-    provideRouter(
-      routeConfig,
-      withRouterConfig({ scrollPositionRestoration: "enabled" }) // Enable scroll restoration
-    ),
+    provideRouter(routeConfig, inMemoryScrollingFeature),
   ],
 }).catch((err) => console.error(err));
