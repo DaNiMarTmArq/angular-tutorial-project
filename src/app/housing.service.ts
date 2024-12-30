@@ -1,12 +1,13 @@
 import { Injectable } from "@angular/core";
 import { HousingLocation } from "./housinglocation";
-
+import { environment } from "../environments/environment"; // Import environment for production check
 
 @Injectable({
   providedIn: "root",
 })
 export class HousingService {
   readonly baseUrl = "https://angular.dev/assets/images/tutorials/common";
+  url = "http://localhost:3000/locations";
   protected housingLocationList: HousingLocation[] = [
     {
       id: 0,
@@ -109,13 +110,47 @@ export class HousingService {
       laundry: true,
     },
   ];
-  getAllHousingLocations(): HousingLocation[] {
-    return this.housingLocationList;
+
+  async getAllHousingLocations(): Promise<HousingLocation[]> {
+    try {
+      if (environment.production) {
+        // In production, return the local data
+        return this.housingLocationList;
+      }
+
+      // Try fetching data from the API (JSON server)
+      const data = await fetch(this.url);
+      if (!data.ok) {
+        throw new Error("Failed to fetch data from server.");
+      }
+      return await data.json();
+    } catch (error) {
+      console.error("Error fetching housing locations: ", error);
+      // If there's an error (either production environment or fetch failure), return local data
+      return this.housingLocationList;
+    }
   }
-  getHousingLocationById(id: number): HousingLocation | undefined {
-    return this.housingLocationList.find(
-      (housingLocation) => housingLocation.id === id
-    );
+
+  async getHousingLocationById(
+    id: number
+  ): Promise<HousingLocation | undefined> {
+    try {
+      if (environment.production) {
+        // In production, return the local data
+        return this.housingLocationList.find((location) => location.id === id);
+      }
+
+      // Try fetching the specific housing location from the API
+      const data = await fetch(`${this.url}/${id}`);
+      if (!data.ok) {
+        throw new Error("Failed to fetch data from server.");
+      }
+      return await data.json();
+    } catch (error) {
+      console.error("Error fetching housing location by ID: ", error);
+      // If there's an error (either production environment or fetch failure), return the local data
+      return this.housingLocationList.find((location) => location.id === id);
+    }
   }
 
   submitApplication(firstName: string, lastName: string, email: string) {
